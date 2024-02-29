@@ -1,5 +1,5 @@
 #include <freeRTOS_API.h>
-#include <WiFi.h>
+#include "WiFi.h"
 #include <PubSubClient.h>
 #include <StreamReader.h>
 // #include <menuBuilder.h>
@@ -7,36 +7,47 @@
 // #include <Adafruit_SSD1306.h>
 #include "secret.h"
 
+// ----------- MQTT objects ----------- //
+WiFiClient espClient;
+PubSubClient client(espClient);
+
 // ----------- freeRTOS objects ----------- //
-Task mqttConnectionTask("MQTT Connection Manager", 1024, 0);
-Task mqttPubSubTask("MQTT ")
-Task serialInTask("Serial Read Task", 1024, 1);
-Task serialOutTask("Serial Write Task", 1024, 1);
-// Task displayTask("Display Update Task", 2048, 1);
+#define PRO_CORE 1
+#define APP_CORE 0
+Task wifiManager("WiFi Manager", 1024, 1);
+Task mqttManager("MQTT Connection Manager", 1024, 1);
+Task mqttMessenger("MQTT Messenger", 1024, 1);
+Task serialReader("Serial Read Task", 1024, 1);
+Task serialWrite("Serial Write Task", 1024, 1);
+Task displayManager("Display Update Task", 2048, 0);
 
-Queue incomingMsgs(25);
-Queue outgoingMsgs(25);
+Queue mqttQueue(25);
+Queue serialQueue(25);
 
-void TaskMQTT(void *);
-void TaskSerialRead(void *);
-void TaskSerialWrite(void *);
-void TaskDisplay(void *);
+void taskWifiManager(void *);
+void taskmqttManager(void *);
+void taskMqttMessenger(void *);
+void taskSerialReader(void *);
+void taskSerialWriter(void *);
+void taskDisplay(void *);
 
 // ----------- setup ----------- //
 void setup() {
   Serial.begin(115200);
 
-  mqttTask.createTask(TaskMQTT,2);
-  serialInTask.createTask(TaskSerialRead,1);
-  serialOutTask.createTask(TaskSerialWrite,1);
-  // displayTask.createTask(TaskDisplay,1);
+  wifiManager.createTask(taskWifiManager,PRO_CORE);
+  mqttManager.createTask(taskMqttManager,PRO_CORE);
+  mqttMessenger.createTask(taskMqttMessenger,PRO_CORE);
+  serialReader.createTask(taskSerialReader,APP_CORE);
+  serialWrite.createTask(taskSerialWrite,APP_CORE);
+  displayManager.createTask(taskDisplay,APP_CORE);
 
-  incomingMsgs.create();
-  outgoingMsgs.create();
+  mqttQueue.create();
+  serialQueue.create();
 
   vTaskDelete(NULL);
 }
 
 void loop() {
-// code never gets here
+  // code never gets here
 }
