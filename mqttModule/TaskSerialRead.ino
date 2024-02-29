@@ -1,14 +1,14 @@
-void TaskSerialRead(void *) {
-  StreamReader reader(&Serial, 2);
-  message_t message;
+void taskSerialRead(void *) {
+  message_t mqttMessage;
+  char* thing;
   Serial.println("read task init");
   for (;;) {
     if (reader.receiveCommand()) {
       Serial.println("command received");
-      message.name = reader.getLatestCommand();
-      message.data = reader.getLatestCommandData();
+      mqttMessage.id = reader.getLatestCommand();
+      reader.getLatestCommandData(thing);
 
-      if (incomingMsgs.sendMessage(message, 2000)) {
+      if (mqttQueue.sendMessage(mqttMessage, 2000)) {
         // The message was successfully sent.
         Serial.println("msg sent");
       } else {
