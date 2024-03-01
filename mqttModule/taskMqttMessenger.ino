@@ -4,13 +4,15 @@ void taskMqttMessenger(void *) {
     mqttQueue.receiveMessage(&message);
     switch (message.id) {
       case 1:  // pub
-               // client.publish();
+        // client.publish();
+        Serial.println("Pub");
         break;
       case 2:  // sub
-               // client.subscribe();
+        Serial.println("Sub");
+        // client.subscribe();
         break;
-      case 3:  // unsub
-               // client.unsubscribe();
+      case 3:                     // unsub
+        Serial.println("Unsub");  // client.unsubscribe();
         break;
     }
   }

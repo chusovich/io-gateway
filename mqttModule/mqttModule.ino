@@ -12,14 +12,14 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 // ----------- freeRTOS objects ----------- //
-#define PRO_CORE 1
-#define APP_CORE 0
-Task wifiManager("WiFi Manager", 1024, 1);
-Task mqttManager("MQTT Connection Manager", 1024, 1);
-Task mqttMessenger("MQTT Messenger", 1024, 1);
-Task serialReader("Serial Read Task", 1024, 1);
-Task serialWrite("Serial Write Task", 1024, 1);
-Task displayManager("Display Update Task", 2048, 0);
+#define PRO_CORE 0
+#define APP_CORE 1
+Task wifiManager("WiFi Manager", 4096, 1);
+Task mqttManager("MQTT Connection Manager", 4096, 1);
+Task mqttMessenger("MQTT Messenger", 4096, 1);
+Task serialReader("Serial Read Task", 4096, 1);
+//Task serialWriter("Serial Write Task", 1024, 1);
+//Task displayManager("Display Update Task", 2048, 0);
 
 Queue mqttQueue(25);
 Queue serialQueue(25);
@@ -28,8 +28,8 @@ void taskWifiManager(void *);
 void taskmqttManager(void *);
 void taskMqttMessenger(void *);
 void taskSerialReader(void *);
-void taskSerialWriter(void *);
-void taskDisplay(void *);
+// void taskSerialWriter(void *);
+// void taskDisplay(void *);
 
 // ----------- setup ----------- //
 void setup() {
@@ -39,12 +39,11 @@ void setup() {
   mqttManager.createTask(taskMqttManager,PRO_CORE);
   mqttMessenger.createTask(taskMqttMessenger,PRO_CORE);
   serialReader.createTask(taskSerialReader,APP_CORE);
-  serialWrite.createTask(taskSerialWrite,APP_CORE);
-  displayManager.createTask(taskDisplay,APP_CORE);
+  // serialWriter.createTask(taskSerialWriter,APP_CORE);
+  // displayManager.createTask(taskDisplay,APP_CORE);
 
   mqttQueue.create();
   serialQueue.create();
-
   vTaskDelete(NULL);
 }
 

@@ -1,4 +1,5 @@
 void taskMqttManager(void*) {
+  Serial.println("mqtt manager intialized");
   message_t message;
   client.setServer(mqtt_server, port);
   client.setCallback(callback);
@@ -8,8 +9,10 @@ void taskMqttManager(void*) {
     if (client.connected() && WiFi.status() == WL_CONNECTED) {
       client.loop();
       vTaskDelay(200 / portTICK_PERIOD_MS);
+      Serial.println("client loop");
     } else {
       client.connect(clientID, MQTTusername, MQTTpassword);
+      Serial.println("trying to connect");
       vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
   }  // infinite loop

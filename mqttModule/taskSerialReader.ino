@@ -1,4 +1,4 @@
-void taskSerialRead(void *) {
+void taskSerialReader(void *) {
   StreamReader reader(&Serial, 2);
   message_t message;
   Serial.println("read task init");
