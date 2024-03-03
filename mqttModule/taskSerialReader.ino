@@ -1,19 +1,17 @@
 void taskSerialReader(void *) {
-  StreamReader reader(&Serial, 2);
-  message_t message;
-  Serial.println("read task init");
+  JsonDocument doc;
+  DeserializationError jsonError;
+  message_t msg;
   for (;;) {
-    if (reader.receiveCommand()) {
-      Serial.println("command received");
-      message.id = reader.getLatestCommand();
-      message.data = reader.getLatestCommandData();
-      if (mqttQueue.sendMessage(message, 2000)) {
-        // The message was successfully sent.
-        Serial.println("msg sent");
-      } else {
-        Serial.println("send error");
-      }
+    while (Serial.available() == 0)
+      vTaskDelay(20 / portTICK_PERIOD_MS);
+    jsonError = deserializeJson(doc, Serial);
+    if (jsonError) {
+      Serial.printf("deserializeJson() failed: %s\n", jsonError.c_str());
     } else {
+      doc.shrinkToFit();  // optional
+      serializeJson(doc, msg.string); //Serial.printf("message_t.string: %s\n", msg.string);
+      mqttQueue.enqueue(msg, 1000);
     }
   }
 }
