@@ -14,9 +14,8 @@
 ReadBufferingStream bufferingStream(Serial, 150);
 // json docs are declared in the tasks
 
-// ----------- MQTT objects ----------- //
-WiFiClient espClient;
-PubSubClient client(espClient);
+// ----------- ESP-NOW objects ----------- //
+
 
 // ----------- freeRTOS objects ----------- //
 #define PRO_CORE 0
