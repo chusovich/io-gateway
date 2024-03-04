@@ -1,18 +1,55 @@
-void taskMqttMessenger(void *) {
-  message_t message;
+void taskMqttMessenger(void*) {
+  message_t msg;
+  JsonDocument doc;
+  DeserializationError jsonError;
+  char topic[50];
+  char payload[32];
+
   for (;;) {
-    if (mqttQueue.receiveMessage(&message)) {  // check if we have a message waiting for us, never timeout
-      switch (message.id) {
-        case 0:
-          // pub
+    mqttQueue.peek(&msg);  // see if we have a message
+    jsonError = deserializeJson(doc, msg.string);
+    // Serial.printf("message received: %s\n", msg.string);
+    if (jsonError) {
+      Serial.print("deserializeJson() failed: ");
+      Serial.println(jsonError.c_str());
+      mqttQueue.dequeue(&msg);
+    } else {
+      switch (doc["id"].as<int>()) {
+        case 1:  // pub
+          strlcpy(topic, doc["topic"] | "<null>", 32);
+          strlcpy(payload, doc["payload"] | "<null>", 32);
+          if (strcmp(topic, "<null>") != 0) {
+            if (client.publish(topic, payload)) {
+              Serial.printf("topic to pub: %s\n", topic);
+              Serial.printf("payload to pub: %s\n", payload);
+              mqttQueue.dequeue(&msg, 100);
+              topic[0] = '\0';
+              payload[0] = '\0';
+              Serial.println("success");
+            }
+          }
           break;
-        case 1:
-          //sub;
+        case 2:  // sub
+          strlcpy(topic, doc["topic"] | "<null>", 32);
+          if (strcmp(topic, "<null>") != 0) {
+            if (client.subscribe(topic)) {
+              Serial.printf("topic to pub: %s\n", topic);
+              mqttQueue.dequeue(&msg, 100);
+              topic[0] = '\0';
+            }
+          }
           break;
-        case 2:
-          // unsub
+        case 3:  // unsub
+          Serial.println("Unsub");
+          strlcpy(topic, doc["topic"] | "<null>", 32);
+          if (strcmp(topic, "<null>") != 0) {
+            if (client.unsubscribe(doc["topic"])) {
+              mqttQueue.dequeue(&msg, 100);
+              topic[0] = '\0';
+            }
+          }
           break;
-      }
-    }
-  }
+      }  // switch statement
+    }    // else
+  }      // infinite loop
 }
