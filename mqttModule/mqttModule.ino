@@ -28,12 +28,14 @@ Task serialReader("Serial Read Task", 4096, 1);
 Task displayManager("Display Update Task", 4096, 0);
 Queue mqttQueue(25);
 Queue displayQueue(10);
+Timer displayTimeout;
 
 void taskWifiManager(void *);
 void taskmqttManager(void *);
 void taskMqttMessenger(void *);
 void taskSerialReader(void *);
 void taskDisplay(void *);
+void timerCallback(TimerHandle_t timerHandle);
 
 // ----------- display objects ----------- //
 #define SCREEN_WIDTH 128     // OLED display width, in pixels
@@ -78,6 +80,7 @@ void setup() {
   displayManager.createTask(taskDisplay, APP_CORE);
   mqttQueue.create();
   displayQueue.create();
+  displayTimeout.create("timer", 10000, false, 1, timerCallback);
   // other setup
   createMenus();
   setupEncoderPins();

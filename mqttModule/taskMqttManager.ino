@@ -42,7 +42,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) {
     data[i] = (char)payload[i];
   }
-  doc["msgID"] = 1;
+  doc["id"] = 1;
   doc["payload"] = data;
   doc["topic"] = topic;
   serializeJson(doc, Serial);

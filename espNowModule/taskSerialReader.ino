@@ -11,7 +11,7 @@ void taskSerialReader(void *) {
     } else {
       doc.shrinkToFit();  // optional
       serializeJson(doc, msg.string); //Serial.printf("message_t.string: %s\n", msg.string);
-      mqttQueue.enqueue(msg, 1000);
+      espNowQueue.enqueue(msg, 1000);
     }
   }
 }

@@ -12,3 +12,8 @@ void refresh() {
   doc["msgID"] = 2;  // tell the ESP-NOW module to resub to the topic in the peer list
   serializeJson(doc, Serial);
 }
+
+void timerCallback(TimerHandle_t timerHandle) {
+  message_t timerMsg = { 3, "null" };
+  displayQueue.enqueueISR(&timerMsg);
+}

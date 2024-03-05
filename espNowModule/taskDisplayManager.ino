@@ -6,7 +6,7 @@ void taskDisplay(void *) {
     displayQueue.dequeue(&msg);
     switch (msg.id) {
       case 1:  // inc line num
-        if (count < 7 && count > 0) {
+        if (count < 3 && count > 0) {
           MainMenu.focusLine(count);  // select line and update display
           MainMenu.update();
         } else if (count <= 0) {
@@ -24,11 +24,7 @@ void taskDisplay(void *) {
         MainMenu.update();
         break;
       case 4:
-        WifiStatus.text = msg.string;
-        MainMenu.update();
-        break;
-      case 5:
-        MqttStatus.text = msg.string;
+        // update display
         MainMenu.update();
         break;
     }

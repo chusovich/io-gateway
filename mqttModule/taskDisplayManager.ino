@@ -6,7 +6,8 @@ void taskDisplay(void *) {
     displayQueue.dequeue(&msg);
     switch (msg.id) {
       case 1:  // inc line num
-        if (count < 7 && count > 0) {
+        displayTimeout.reset(100);
+        if (count < 4 && count > 0) {
           MainMenu.focusLine(count);  // select line and update display
           MainMenu.update();
         } else if (count <= 0) {
@@ -16,6 +17,7 @@ void taskDisplay(void *) {
         }
         break;
       case 2:  // do action
+        displayTimeout.reset(100);
         MainMenu.doAction();
         break;
       case 3:
