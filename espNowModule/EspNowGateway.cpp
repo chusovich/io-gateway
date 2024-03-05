@@ -1,19 +1,4 @@
-void espNowSetup() {
-  WiFi.persistent(false);
-  WiFi.mode(WIFI_AP);
-  WiFi.disconnect();
-  WiFi.softAP("ESPNOW", nullptr, 3);
-  WiFi.softAPdisconnect(false);
-  // WiFi must be powered on to use ESP-NOW unicast. It could be either AP or STA mode, and does not have to be connected. For best results, ensure both devices are using the same WiFi channel.
-  //  Serial.print("MAC address of this node is ");
-  macAddress.text = WiFi.softAPmacAddress();
-  bool initBool = WifiEspNow.begin();
-  if (!initBool) {
-    // Serial.println("WifiEspNow.begin() failed");
-    ESP.restart();
-  }
-  WifiEspNow.onReceive(espNowCallback, nullptr);
-}
+#include "EspNowGateway.h"
 
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
   JsonDocument doc;
@@ -28,11 +13,30 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size
       doc["mac"][i] = mac[i];
     }
     serializeJson(doc, cbMsg.string);
-    espNowQueue.enqueue(cbMsg, 1000);
+    static_cast<Queue *>(arg)->enqueue(cbMsg, 1000);
   }
 }
 
-void addPeerToList(const uint8_t mac[6]) {
+void EspNowGateway::setQueue(Queue *queue) {
+  _espNowQueue = queue;
+}
+
+void EspNowGateway::begin() {
+  WiFi.persistent(false);
+  WiFi.mode(WIFI_AP);
+  WiFi.disconnect();
+  WiFi.softAP("ESPNOW", nullptr, 3);
+  WiFi.softAPdisconnect(false);
+  bool initBool = WifiEspNow.begin();
+  if (!initBool) {
+    // Serial.println("WifiEspNow.begin() failed");
+    ESP.restart();
+  }
+  WifiEspNow.onReceive(espNowCallback, _espNowQueue);
+  macAddress = WiFi.softAPmacAddress();
+}
+
+void EspNowGateway::addPeer(uint8_t mac[6]) {
   bool alreadyAdded = false;
   // check if peer has already been added
   for (int i = 0; i <= 9; i++) {
@@ -49,8 +53,10 @@ void addPeerToList(const uint8_t mac[6]) {
     }
   }
   // add the peer to an open spot
-  for (int i = 0; i <= 9; i++) {
+  for (int i = 0; i < NUM_PEERS; i++) {
     if (!peerList[i].active && !alreadyAdded) {
+      WifiEspNow.addPeer(mac);
+
       peerList[i].active = true;
       peerList[i].mac[0] = mac[0];
       peerList[i].mac[1] = mac[1];
@@ -70,7 +76,7 @@ void addPeerToList(const uint8_t mac[6]) {
   }
 }
 
-void addTopicToPeer(const uint8_t mac[6], String topic) {
+void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
   bool alreadyAdded = false;
   bool notAdded = true;
   for (int p = 0; p <= NUM_PEERS; p++) {  // for each peer
@@ -92,6 +98,40 @@ void addTopicToPeer(const uint8_t mac[6], String topic) {
             break;
           }
         }
+      }
+    }
+  }
+}
+
+void EspNowGateway::forwardMessageToPeers(String topic, String payload) {
+  char buffer[250];
+  JsonDocument doc;
+  doc["topic"] = topic;
+  doc["payload"] = payload;
+  for (int i = 0; i < NUM_PEERS; i++) {  // for each peer...
+    if (peerList[i].active) {            // if it is active...
+      // Serial.print("Active Mac: "); Serial.println(peerList[i].mac[0]);
+      for (int j = 0; j < NUM_TOPICS; j++) {  // search through all 12 topics
+        // Serial.println("Searching Topics...");
+        if (peerList[i].topics[j].equals(topic)) {  // if we find a match...
+          // create the message buffer and send the message
+          serializeJson(doc, buffer);
+          WifiEspNow.send(peerList[i].mac, reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
+          Serial.println("Message Sent!");
+        }
+      }
+    }
+  }
+}
+
+void EspNowGateway::refresh() {
+  JsonDocument jsonDoc;
+  jsonDoc["id"] = 2;
+  for (int i = 0; i < NUM_PEERS; i++) {
+    for (int j = 0; j < NUM_TOPICS; j++) {
+      if (peerList[i].topics[j].indexOf("/") != -1) {
+        jsonDoc["topic"] = peerList[i].topics[j];
+        serializeJson(jsonDoc, Serial);
       }
     }
   }

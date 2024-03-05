@@ -1,67 +1,49 @@
 void taskEspNowMessenger(void *) {
   message_t msg;
   JsonDocument doc;
+  JsonArray jsonMac;
   DeserializationError jsonError;
+  char jsonString[300];
+  uint8_t macAddr[6];
 
   for (;;) {
     espNowQueue.peek(&msg);  // see if we have a message
     jsonError = deserializeJson(doc, msg.string);
-    // Serial.printf("message received: %s\n", msg.string);
     if (jsonError) {
-      Serial.print("deserializeJson() failed: ");
-      Serial.println(jsonError.c_str());
-      espNowQueue.dequeue(&msg);
+      Serial.printf("deserializeJson() failed: %s\n", jsonError.c_str());
     } else {
-      doc.shrinkToFit();  // optional
-      char output[300];
-      serializeJson(doc, output);
-      String topic;
+      espNowQueue.dequeue(&msg);
+      serializeJson(doc, jsonString);
       switch (doc["id"].as<int>()) {
-        case 1:  // send message
-          topic = String(doc["topic"]);
-          for (int i = 0; i <= NUM_PEERS - 1; i++) {  // for each peer...
-            if (peerList[i].active) {                 // if it is active...
-              // Serial.print("Active Mac: ");
-              Serial.println(peerList[i].mac[0]);
-              for (int j = 0; j <= NUM_TOPICS; j++) {  // search through all 12 topics
-                // Serial.println("Searching Topics...");
-                if (peerList[i].topics[j].equals(topic)) {  // if we find a match...
-                  // create the message buffer and send the message
-                  WifiEspNow.send(peerList[i].mac, reinterpret_cast<const uint8_t *>(output), strlen(output));
-                  Serial.println("Message Sent!");
-                }
-              }
-            }
-          }
+        case 1:  // send message - expect "topic" and "payload" objects in json doc
+          gtw.forwardMessageToPeers(doc["topic"], doc["payload"]);
           break;
-        case 2:  // refresh
+        case 2:  // refresh - no json data need
+          gtw.refresh();
+          break;
+        case 3:  // add peer - "mac" object expected in json doc, "id" is reused
           {
-            JsonDocument jsonDoc;
-            doc["id"] = 2;
-            for (int i = 0; i <= NUM_PEERS; i++) {
-              for (int j = 0; j <= NUM_TOPICS; j++) {
-                if (peerList[i].topics[j].indexOf("/") != -1) {
-                  jsonDoc["topic"] = peerList[i].topics[j];
-                  serializeJson(jsonDoc, Serial);
-                }
-              }
+            jsonMac = doc["mac"];
+            for (int i = 0; i < 6; i++) {
+              macAddr[i] = jsonMac[i];
             }
+            gtw.addPeer(macAddr);  // add peer to our peer list
           }
           break;
-        case 3:  // add peer
-          Serial.println("Add case");
-          const uint8_t mac[6] = { 0, 0, 0, 0, 0, 0 };
-          addPeerToList(mac);  // add peer to our peer list
-          WifiEspNow.addPeer(mac);
+        case 4:  // sub - expected "topic" and "mac" objects in json doc, "id" is reused
+          {
+            jsonMac = doc["mac"];
+            for (int i = 0; i < 6; i++) {
+              macAddr[i] = jsonMac[i];
+            }
+            gtw.subPeerToTopic(macAddr, doc["topic"]);
+            serializeJson(doc, Serial);  // tell mqtt to sub to this topic
+          }
           break;
-        case 4:  // sub
-          const uint8_t mac[6] = { 0, 0, 0, 0, 0, 0 };
-          addTopicToPeer(mac, topic);
-          serializeJson(doc, Serial);
-          break;
-        case 4:                        // sub
+        case 5:                        // pub - "topic" and "payload" objects expected, id is reused
           serializeJson(doc, Serial);  // tell mqtt to publish the topic and payload
           break;
+
       }  // switch statement
     }    // else
   }      // infinite loop

@@ -15,7 +15,7 @@ void taskMqttMessenger(void*) {
       mqttQueue.dequeue(&msg);
     } else {
       switch (doc["id"].as<int>()) {
-        case 1:  // pub
+        case 5:  // pub
           strlcpy(topic, doc["topic"] | "<null>", 32);
           strlcpy(payload, doc["payload"] | "<null>", 32);
           if (strcmp(topic, "<null>") != 0) {
@@ -29,7 +29,7 @@ void taskMqttMessenger(void*) {
             }
           }
           break;
-        case 2:  // sub
+        case 4:  // sub
           strlcpy(topic, doc["topic"] | "<null>", 32);
           if (strcmp(topic, "<null>") != 0) {
             if (client.subscribe(topic)) {
@@ -39,7 +39,7 @@ void taskMqttMessenger(void*) {
             }
           }
           break;
-        case 3:  // unsub
+        case 5:  // unsub
           Serial.println("Unsub");
           strlcpy(topic, doc["topic"] | "<null>", 32);
           if (strcmp(topic, "<null>") != 0) {
