@@ -14,6 +14,7 @@ struct peerData {
   uint8_t mac[6] = { 0, 0, 0, 0, 0, 0 };
   String topics[NUM_TOPICS];
 };
+peerData peerList[NUM_PEERS];
 
 class EspNowGateway {
 public:
@@ -26,7 +27,6 @@ public:
   // removePeer();
   void forwardMessageToPeers(String topic, String payload);
   // data
-  peerData peerList[NUM_PEERS];
   String macAddress;
   Queue* _espNowQueue;
 private:

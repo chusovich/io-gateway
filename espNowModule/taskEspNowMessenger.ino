@@ -5,6 +5,8 @@ void taskEspNowMessenger(void *) {
   DeserializationError jsonError;
   char jsonString[300];
   uint8_t macAddr[6];
+  gtw.begin();
+  gtw.setQueue(&espNowQueue);
 
   for (;;) {
     espNowQueue.peek(&msg);  // see if we have a message
@@ -22,23 +24,19 @@ void taskEspNowMessenger(void *) {
           gtw.refresh();
           break;
         case 3:  // add peer - "mac" object expected in json doc, "id" is reused
-          {
-            jsonMac = doc["mac"];
-            for (int i = 0; i < 6; i++) {
-              macAddr[i] = jsonMac[i];
-            }
-            gtw.addPeer(macAddr);  // add peer to our peer list
+          jsonMac = doc["mac"];
+          for (int i = 0; i < 6; i++) {
+            macAddr[i] = jsonMac[i];
           }
+          gtw.addPeer(macAddr);  // add peer to our peer list
           break;
         case 4:  // sub - expected "topic" and "mac" objects in json doc, "id" is reused
-          {
-            jsonMac = doc["mac"];
-            for (int i = 0; i < 6; i++) {
-              macAddr[i] = jsonMac[i];
-            }
-            gtw.subPeerToTopic(macAddr, doc["topic"]);
-            serializeJson(doc, Serial);  // tell mqtt to sub to this topic
+          jsonMac = doc["mac"];
+          for (int i = 0; i < 6; i++) {
+            macAddr[i] = jsonMac[i];
           }
+          gtw.subPeerToTopic(macAddr, doc["topic"]);
+          serializeJson(doc, Serial);  // tell mqtt to sub to this topic
           break;
         case 5:                        // pub - "topic" and "payload" objects expected, id is reused
           serializeJson(doc, Serial);  // tell mqtt to publish the topic and payload

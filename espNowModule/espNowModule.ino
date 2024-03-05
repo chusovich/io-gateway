@@ -37,9 +37,16 @@ EspNowGateway gtw;
 // Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // void createMenus();
+// void incPeer(); void decPeer(); void goHome(); void deletePeer();
 // Line Title(0, 32, 100, "ESP-NOW Module"), macAddress(8, 0, 101, "MAC:XX:XX:XX:XX:XX:XX"), numPeers(16, 0, 102, "# Peers"), viewPeers(24, 0, 103, "View Peers");
+// Line Home(0, 8, 104, "Home", goHome), Back(0, 16, 105, "Back <", decPeer), Next(0, 24, 106, "Next >", incPeer);
+// Line Alias(32, 0, 201, "Peer Alias"), PeerMac(48, 0, 202, "MAC:XX:XX:XX:XX:XX:XX"), Topics(60, 0, 203, "View Topics"), Delete(72,0,204, "Delete Peer",deletePeer);
+// Line Empty32(0,32,-1,"     "), Empty48(0,48,-1,"    "), Empty60(0,60,-1,"    "), Empty72(0,72,-1,"    ");
+
 // Screen HomeScreen(0, &display);
+// Screen PeerView(1, &display);
 // Menu MainMenu(0);
+// JsonDocument menuDoc;
 
 // ----------- encoder setup ----------- //
 volatile int clkPin = 2;
@@ -57,7 +64,6 @@ void setupEncoderPins();
 // ----------- setup ----------- //
 void setup() {
   Serial.begin(115200);
-  gtw.begin();
   // init OLED display
   // if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
   //   Serial.println(F("SSD1306 allocation failed"));
@@ -74,7 +80,6 @@ void setup() {
   // other setup
   // createMenus();
   setupEncoderPins();
-  gtw.setQueue(&espNowQueue);
   vTaskDelete(NULL);
 }
 

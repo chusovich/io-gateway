@@ -6,7 +6,7 @@
 //     displayQueue.dequeue(&msg);
 //     switch (msg.id) {
 //       case 1:  // inc line num
-//         if (count < 3 && count > 0) {
+//         if (count < 7 && count > 0) {
 //           MainMenu.focusLine(count);  // select line and update display
 //           MainMenu.update();
 //         } else if (count <= 0) {
