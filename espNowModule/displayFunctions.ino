@@ -17,9 +17,18 @@
 //   MainMenu.selectScreen(0);
 // }
 
-// void incPeer(){
-//   message_t incPeerMsg = { , "null" };
-//   displayQueue.enqueueISR(&timerMsg);
-// } 
+void incPeer() {
+  message_t incPeerMsg = { 5, "null" };
+  displayQueue.enqueueISR(&incPeerMsg);
+}
 
-// void decScreen(); void goHome(); void deletePeed();
+void decPeer() {
+  message_t decPeerMsg = { 6, "null" };
+  displayQueue.enqueueISR(&decPeerMsg);
+}
+
+void goHome() {
+    message_t decPeerMsg = { 7, "null" };
+  displayQueue.enqueueISR(&decPeerMsg);
+}
+void deletePeed();
