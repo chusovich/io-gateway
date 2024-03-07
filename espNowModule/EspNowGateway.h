@@ -1,12 +1,18 @@
 #ifndef EspNowGateway_h
 #define EspNowGateway_h
 #include "Arduino.h"
-#include "freeRTOS_API.h"
+#include <freeRTOS_API.h>
 #include <WifiEspNow.h>
 #include <ArduinoJson.h>
 
 #define NUM_PEERS 10
 #define NUM_TOPICS 12
+
+struct peerData {
+  bool active = false;
+  uint8_t mac[6] = { 0, 0, 0, 0, 0, 0 };
+  String topics[NUM_TOPICS];
+};
 
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg);
 

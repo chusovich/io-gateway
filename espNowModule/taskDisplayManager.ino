@@ -1,7 +1,6 @@
 void taskDisplay(void *) {
   message_t msg;
   MainMenu.focusLine(-1);
-  peerData currentPeer;
   int c = 0;
   MainMenu.update();
   for (;;) {
@@ -30,16 +29,16 @@ void taskDisplay(void *) {
         MainMenu.update();
         break;
      case 5: // inc peer
-           if (curPeerNum < NUM_PEERS) {
-            curPeerNum++;
+           if (c < NUM_PEERS) {
+            c++;
            }
-          PeerMac.text = peerInfo[c].mac
-          Alias.text = peerInfo[c].alias
+          // PeerMac.text = peerInfo[c].mac
+          // Alias.text = peerInfo[c].alias
 
        break;
      case 6: // dec peer
-           if (curPeerNum > 0) {
-            curPeerNum--;
+           if (c > 0) {
+            c--;
            }
        break;
     }

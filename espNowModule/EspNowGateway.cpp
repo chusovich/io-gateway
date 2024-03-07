@@ -1,10 +1,5 @@
 #include "EspNowGateway.h"
 
-struct peerData {
-  bool active = false;
-  uint8_t mac[6] = { 0, 0, 0, 0, 0, 0 };
-  String topics[NUM_TOPICS];
-};
 peerData peerInfo[NUM_PEERS];
 
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
