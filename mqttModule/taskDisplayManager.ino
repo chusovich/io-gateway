@@ -6,7 +6,7 @@ void taskDisplay(void *) {
     displayQueue.dequeue(&msg);
     switch (msg.id) {
       case 1:  // inc line num
-        displayTimeout.reset(100);
+          displayTimeout.reset(100);
         if (count < 4 && count > 0) {
           MainMenu.focusLine(count);  // select line and update display
           MainMenu.update();

@@ -10,7 +10,6 @@
 #include "EspNowGateway.h"
 
 // ----------- json declarations ----------- //
-ReadBufferingStream bufferingStream(Serial, 150);
 // json docs are declared in the tasks
 
 // ----------- freeRTOS objects ----------- //
@@ -21,6 +20,7 @@ Task serialReader("Serial Read Task", 4096, 1);
 Task displayManager("Display Update Task", 4096, 0);
 Queue espNowQueue(25);
 Queue displayQueue(10);
+Timer displayTimeout;
 
 void taskEspNowMessenger(void *);
 void taskSerialReader(void *);
@@ -41,19 +41,20 @@ void incPeer();
 void decPeer();
 void goHome();
 void deletePeer();
-Line Title(0, 32, 100, "ESP-NOW Module"), macAddress(8, 0, 101, "MAC:XX:XX:XX:XX:XX:XX"), numPeers(16, 0, 102, "# Peers"), viewPeers(24, 0, 103, "View Peers");
-Line Home(0, 8, 104, goHome, "Home"), Back(0, 16, 105, decPeer, "Back <"), Next(0, 24, 106, incPeer, "Next >");
-Line Alias(32, 0, 201, "Peer Alias"), PeerMac(48, 0, 202, "MAC:XX:XX:XX:XX:XX:XX"), Topics(60, 0, 203, "View Topics"), Delete(72, 0, 204, deletePeer, "Delete Peer");
+void viewPeersScreen();
+Line Title(0, 28, 100, "ESP-NOW Module"), macAddress(8, 0, 101, "MAC:XX:XX:XX:XX:XX:XX"), numPeers(16, 0, 102, "# Peers"), viewPeers(24, 0, 103, viewPeersScreen, "View Peers");
+Line Home(8, 0, 104, goHome, "Return to Main Menu"), Back(16, 0, 105, decPeer, "< Prev"), Next(16, 90, 106, incPeer, "Next >");
+Line Alias(24, 0, 201, "Peer Alias"), PeerMac(32, 0, 202, "MAC:XX:XX:XX:XX:XX:XX"), Topics(40, 0, 203, "View Topics"), Delete(48, 0, 204, deletePeer, "Delete Peer");
 
 Screen HomeScreen(0, &display);
 Screen PeerView(1, &display);
 Menu MainMenu(0);
-JsonDocument menuDoc;
+PeerData otherPeer;
 
 // ----------- encoder setup ----------- //
-volatile int clkPin = 2;
-volatile int dtPin = 3;
-int switchPin = 5;
+volatile int clkPin = 1;
+volatile int dtPin = 2;
+int switchPin = 4;
 volatile int count = 0;
 volatile int clkPinLast = LOW;
 volatile int clkPinCurrent = LOW;
@@ -74,16 +75,19 @@ void setup() {
   // start up tasks and queues
   espNowQueue.create();
   displayQueue.create();
+  displayTimeout.create("timer", 5000, false, 1, timerCallback);
   espNowMessenger.createTask(taskEspNowMessenger, PRO_CORE);
   serialReader.createTask(taskSerialReader, APP_CORE);
   displayManager.createTask(taskDisplay, APP_CORE);
-
   // other setup
   createMenus();
   setupEncoderPins();
+  // gtw.loadPeerList(&myPeerList);
+  gtw.setQueue(&espNowQueue);
   vTaskDelete(NULL);
 }
 
 void loop() {
-  // code never gets here
+  // uxTaskGetStackHighWaterMark(NULL); // return in words so multiply by four 
+  // xPortGetFreeHeapSize(); // return bytes
 }

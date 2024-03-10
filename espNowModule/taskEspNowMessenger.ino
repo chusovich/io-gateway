@@ -15,7 +15,7 @@ void taskEspNowMessenger(void *) {
       Serial.printf("deserializeJson() failed: %s\n", jsonError.c_str());
     } else {
       espNowQueue.dequeue(&msg);
-      serializeJson(doc, jsonString);
+      serializeJson(doc, jsonString); // Serial.printf("dequeued msg: %d", doc["id"].as<int>());
       switch (doc["id"].as<int>()) {
         case 1:  // send message - expect "topic" and "payload" objects in json doc
           gtw.forwardMessageToPeers(doc["topic"], doc["payload"]);

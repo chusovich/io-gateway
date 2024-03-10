@@ -1,7 +1,5 @@
 #include "EspNowGateway.h"
 
-peerData peerInfo[NUM_PEERS];
-
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
   JsonDocument doc;
   message_t cbMsg;
@@ -43,7 +41,7 @@ void EspNowGateway::addPeer(uint8_t mac[6]) {
   // check if peer has already been added
   for (int i = 0; i <= 9; i++) {
     for (int j = 0; j <= 5; j++) {
-      if (peerInfo[i].mac[j] == mac[j]) {
+      if (myPeerList[i].mac[j] == mac[j]) {
         alreadyAdded = true;
       } else {
         alreadyAdded = false;
@@ -56,20 +54,20 @@ void EspNowGateway::addPeer(uint8_t mac[6]) {
   }
   // add the peer to an open spot
   for (int i = 0; i < NUM_PEERS; i++) {
-    if (!peerInfo[i].active && !alreadyAdded) {
+    if (!myPeerList[i].active && !alreadyAdded) {
       WifiEspNow.addPeer(mac);
 
-      peerInfo[i].active = true;
-      peerInfo[i].mac[0] = mac[0];
-      peerInfo[i].mac[1] = mac[1];
-      peerInfo[i].mac[2] = mac[2];
-      peerInfo[i].mac[3] = mac[3];
-      peerInfo[i].mac[4] = mac[4];
-      peerInfo[i].mac[5] = mac[5];
+      myPeerList[i].active = true;
+      myPeerList[i].mac[0] = mac[0];
+      myPeerList[i].mac[1] = mac[1];
+      myPeerList[i].mac[2] = mac[2];
+      myPeerList[i].mac[3] = mac[3];
+      myPeerList[i].mac[4] = mac[4];
+      myPeerList[i].mac[5] = mac[5];
       Serial.println("Peer added!");
       Serial.print("Mac: ");
       for (int j = 0; j <= 6; j++) {
-        Serial.print(peerInfo[0].mac[j]);
+        Serial.print(myPeerList[0].mac[j]);
         Serial.print(":");
       }
       Serial.println();
@@ -83,9 +81,9 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
   bool notAdded = true;
   for (int p = 0; p <= NUM_PEERS; p++) {  // for each peer
     // Serial.println("Check peer for topic...");
-    if (peerInfo[p].active && notAdded) {           // if the peer is active and we haven't alrady added it
-      for (int t = 0; t <= NUM_TOPICS; t++) {       // go through all of its topics
-        if (peerInfo[p].topics[t].equals(topic)) {  // check if the topic has aleady been added
+    if (myPeerList[p].active && notAdded) {           // if the peer is active and we haven't alrady added it
+      for (int t = 0; t <= NUM_TOPICS; t++) {          // go through all of its topics
+        if (myPeerList[p].topics[t].equals(topic)) {  // check if the topic has aleady been added
           alreadyAdded = true;
           Serial.println("Error: topic has already been added");
         }
@@ -93,8 +91,8 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
       if (!alreadyAdded) {  // if the topic has not been already added
         // Serial.println("Topic not already added, adding topic...");
         for (int t = 0; t <= NUM_TOPICS; t++) {  // go through all of its topics
-          if (peerInfo[p].topics[t] == "") {     // and if the topic element is empty
-            peerInfo[p].topics[t] = topic;       // add it to the list
+          if (myPeerList[p].topics[t] == "") {  // and if the topic element is empty
+            myPeerList[p].topics[t] = topic;    // add it to the list
             Serial.println("Topic added succesfully!");
             notAdded = false;
             break;
@@ -111,14 +109,14 @@ void EspNowGateway::forwardMessageToPeers(String topic, String payload) {
   doc["topic"] = topic;
   doc["payload"] = payload;
   for (int i = 0; i < NUM_PEERS; i++) {  // for each peer...
-    if (peerInfo[i].active) {            // if it is active...
+    if (myPeerList[i].active) {         // if it is active...
       // Serial.print("Active Mac: "); Serial.println(peerList[i].mac[0]);
       for (int j = 0; j < NUM_TOPICS; j++) {  // search through all 12 topics
         // Serial.println("Searching Topics...");
-        if (peerInfo[i].topics[j].equals(topic)) {  // if we find a match...
+        if (myPeerList[i].topics[j].equals(topic)) {  // if we find a match...
           // create the message buffer and send the message
           serializeJson(doc, buffer);
-          WifiEspNow.send(peerInfo[i].mac, reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
+          WifiEspNow.send(myPeerList[i].mac, reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
           Serial.println("Message Sent!");
         }
       }
@@ -131,8 +129,8 @@ void EspNowGateway::refresh() {
   jsonDoc["id"] = 2;
   for (int i = 0; i < NUM_PEERS; i++) {
     for (int j = 0; j < NUM_TOPICS; j++) {
-      if (peerInfo[i].topics[j].indexOf("/") != -1) {
-        jsonDoc["topic"] = peerInfo[i].topics[j];
+      if (myPeerList[i].topics[j].indexOf("/") != -1) {
+        jsonDoc["topic"] = myPeerList[i].topics[j];
         serializeJson(jsonDoc, Serial);
       }
     }

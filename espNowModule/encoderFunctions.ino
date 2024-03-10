@@ -2,9 +2,13 @@ void encoderInterrupt() {
   clkPinCurrent = digitalRead(clkPin);
   if ((clkPinLast == LOW) && (clkPinCurrent == HIGH)) {
     if (digitalRead(dtPin) == HIGH) {
-      count--;
+      if (count < 7) {
+        count++;
+      }
     } else {
-      count++;
+      if (count > 0) {
+        count--;
+      }
     }
     displayQueue.enqueueISR(&isrMsg);
   }

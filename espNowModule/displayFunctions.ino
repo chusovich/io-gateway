@@ -17,6 +17,11 @@ void createMenus() {
   MainMenu.selectScreen(0);
 }
 
+void timerCallback(TimerHandle_t timerHandle) {
+  message_t timerMsg = { 3, "null" };
+  displayQueue.enqueueISR(&timerMsg);
+}
+
 void incPeer() {
   message_t incPeerMsg = { 5, "null" };
   displayQueue.enqueueISR(&incPeerMsg);
@@ -27,9 +32,17 @@ void decPeer() {
   displayQueue.enqueueISR(&decPeerMsg);
 }
 
+// set screen to 0
 void goHome() {
+  MainMenu.selectScreen(0);
+  MainMenu.update();
 }
+
 void deletePeer() {
-  message_t homeMsg = { 7, "null" };
-  displayQueue.enqueueISR(&homeMsg);
+  message_t deleteMsg = { 8, "null" };
+  displayQueue.enqueueISR(&deleteMsg);
+}
+void viewPeersScreen() {
+  MainMenu.selectScreen(1);
+  MainMenu.update();
 }

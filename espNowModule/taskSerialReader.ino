@@ -10,7 +10,7 @@ void taskSerialReader(void *) {
       Serial.printf("deserializeJson() failed: %s\n", jsonError.c_str());
     } else {
       doc.shrinkToFit();  // optional
-      serializeJson(doc, msg.string); //Serial.printf("message_t.string: %s\n", msg.string);
+      serializeJson(doc, msg.string); // Serial.printf("message_t.string: %s\n", msg.string);
       espNowQueue.enqueue(msg, 1000);
     }
   }
