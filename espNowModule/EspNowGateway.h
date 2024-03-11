@@ -20,12 +20,14 @@ public:
   void addPeer(uint8_t mac[6]);
   void refresh();
   void subPeerToTopic(const uint8_t mac[6], String topic);
+  void loadPeerList(PeerData peerList[NUM_PEERS]);
   // removePeer();
   void forwardMessageToPeers(String topic, String payload);
   // data
   String macAddress;
 private:
   Queue *_espNowQueue;
+  PeerData* ptr[10];
   // for array of type: type arr_name[size];
   // type *ptr_name = &arr_name
 };

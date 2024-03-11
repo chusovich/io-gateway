@@ -21,6 +21,11 @@ void EspNowGateway::setQueue(Queue* queue) {
   _espNowQueue = queue;
 }
 
+void EspNowGateway::loadPeerList(PeerData peerList[NUM_PEERS]) {
+  ptr = peerList;
+}
+
+
 void EspNowGateway::begin() {
   WiFi.persistent(false);
   WiFi.mode(WIFI_AP);
@@ -82,7 +87,7 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
   for (int p = 0; p <= NUM_PEERS; p++) {  // for each peer
     // Serial.println("Check peer for topic...");
     if (myPeerList[p].active && notAdded) {           // if the peer is active and we haven't alrady added it
-      for (int t = 0; t <= NUM_TOPICS; t++) {          // go through all of its topics
+      for (int t = 0; t <= NUM_TOPICS; t++) {         // go through all of its topics
         if (myPeerList[p].topics[t].equals(topic)) {  // check if the topic has aleady been added
           alreadyAdded = true;
           Serial.println("Error: topic has already been added");
@@ -91,8 +96,8 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
       if (!alreadyAdded) {  // if the topic has not been already added
         // Serial.println("Topic not already added, adding topic...");
         for (int t = 0; t <= NUM_TOPICS; t++) {  // go through all of its topics
-          if (myPeerList[p].topics[t] == "") {  // and if the topic element is empty
-            myPeerList[p].topics[t] = topic;    // add it to the list
+          if (myPeerList[p].topics[t] == "") {   // and if the topic element is empty
+            myPeerList[p].topics[t] = topic;     // add it to the list
             Serial.println("Topic added succesfully!");
             notAdded = false;
             break;
@@ -109,7 +114,7 @@ void EspNowGateway::forwardMessageToPeers(String topic, String payload) {
   doc["topic"] = topic;
   doc["payload"] = payload;
   for (int i = 0; i < NUM_PEERS; i++) {  // for each peer...
-    if (myPeerList[i].active) {         // if it is active...
+    if (myPeerList[i].active) {          // if it is active...
       // Serial.print("Active Mac: "); Serial.println(peerList[i].mac[0]);
       for (int j = 0; j < NUM_TOPICS; j++) {  // search through all 12 topics
         // Serial.println("Searching Topics...");

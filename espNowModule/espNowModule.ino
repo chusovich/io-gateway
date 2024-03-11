@@ -9,9 +9,6 @@
 #include <ArduinoJson.h>
 #include "EspNowGateway.h"
 
-// ----------- json declarations ----------- //
-// json docs are declared in the tasks
-
 // ----------- freeRTOS objects ----------- //
 #define PRO_CORE 0
 #define APP_CORE 1
@@ -45,11 +42,9 @@ void viewPeersScreen();
 Line Title(0, 28, 100, "ESP-NOW Module"), macAddress(8, 0, 101, "MAC:XX:XX:XX:XX:XX:XX"), numPeers(16, 0, 102, "# Peers"), viewPeers(24, 0, 103, viewPeersScreen, "View Peers");
 Line Home(8, 0, 104, goHome, "Return to Main Menu"), Back(16, 0, 105, decPeer, "< Prev"), Next(16, 90, 106, incPeer, "Next >");
 Line Alias(24, 0, 201, "Peer Alias"), PeerMac(32, 0, 202, "MAC:XX:XX:XX:XX:XX:XX"), Topics(40, 0, 203, "View Topics"), Delete(48, 0, 204, deletePeer, "Delete Peer");
-
 Screen HomeScreen(0, &display);
 Screen PeerView(1, &display);
 Menu MainMenu(0);
-PeerData otherPeer;
 
 // ----------- encoder setup ----------- //
 volatile int clkPin = 1;
@@ -82,7 +77,7 @@ void setup() {
   // other setup
   createMenus();
   setupEncoderPins();
-  // gtw.loadPeerList(&myPeerList);
+  gtw.loadPeerList(&myPeerList);
   gtw.setQueue(&espNowQueue);
   vTaskDelete(NULL);
 }
