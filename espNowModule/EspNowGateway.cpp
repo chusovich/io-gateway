@@ -1,5 +1,7 @@
 #include "EspNowGateway.h"
 
+extern PeerData myPeerList[NUM_PEERS];
+
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
   JsonDocument doc;
   message_t cbMsg;
@@ -21,16 +23,11 @@ void EspNowGateway::setQueue(Queue* queue) {
   _espNowQueue = queue;
 }
 
-void EspNowGateway::loadPeerList(PeerData peerList[NUM_PEERS]) {
-  ptr = peerList;
-}
-
-
 void EspNowGateway::begin() {
   WiFi.persistent(false);
   WiFi.mode(WIFI_AP);
   WiFi.disconnect();
-  WiFi.softAP("ESPNOW", nullptr, 3);
+  WiFi.softAP("ESPNOW_CLIENT", nullptr, 3);
   WiFi.softAPdisconnect(false);
   bool initBool = WifiEspNow.begin();
   if (!initBool) {
@@ -108,7 +105,7 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
   }
 }
 
-void EspNowGateway::forwardMessageToPeers(String topic, String payload) {
+void EspNowGateway::forwardMessage(String topic, String payload) {
   char buffer[250];
   JsonDocument doc;
   doc["topic"] = topic;

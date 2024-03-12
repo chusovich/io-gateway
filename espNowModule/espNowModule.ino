@@ -25,6 +25,7 @@ void taskDisplay(void *);
 
 // ----------- ESP-NOW objects ----------- //
 EspNowGateway gtw;
+PeerData myPeerList[NUM_PEERS];
 
 // ----------- display objects ----------- //
 #define SCREEN_WIDTH 128     // OLED display width, in pixels
@@ -61,6 +62,7 @@ void setupEncoderPins();
 
 // ----------- setup ----------- //
 void setup() {
+  delay(2000);
   Serial.begin(115200);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
@@ -77,8 +79,6 @@ void setup() {
   // other setup
   createMenus();
   setupEncoderPins();
-  gtw.loadPeerList(&myPeerList);
-  gtw.setQueue(&espNowQueue);
   vTaskDelete(NULL);
 }
 

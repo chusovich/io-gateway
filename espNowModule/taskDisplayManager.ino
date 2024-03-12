@@ -1,8 +1,12 @@
 void taskDisplay(void *) {
   message_t msg;
   int c = 0;
+  char numPeersStr[15] = "# of Peers: ";
+  char macStr[25];
+  int peerCount = 0;
   MainMenu.focusLine(-1);
   MainMenu.update();
+
   for (;;) {
     displayQueue.dequeue(&msg);
     switch (msg.id) {
@@ -26,21 +30,38 @@ void taskDisplay(void *) {
         MainMenu.focusLine(-1);
         MainMenu.update();
         break;
-      case 4:
-        // update display
+      case 4:  // update gateway MAC address
+        macAddress.text = msg.string;
         MainMenu.update();
         break;
       case 5:  // inc peer
         if (c < NUM_PEERS - 1) {
           c++;
         }
-        // PeerMac.text = peerInfo[c].mac;
-        // Alias.text = peerInfo[c].alias;
+        sprintf(macStr, "MAC:%02X:%02X:%02X:%02X:%02X:%02X", myPeerList[c].mac[0], myPeerList[c].mac[1], myPeerList[c].mac[2], myPeerList[c].mac[3], myPeerList[c].mac[4], myPeerList[c].mac[5]);
+        PeerMac.text = macStr;
+        Alias.text = myPeerList[c].alias;
+        MainMenu.update();
         break;
       case 6:  // dec peer
         if (c > -1) {
           c--;
         }
+        sprintf(macStr, "MAC:%02X:%02X:%02X:%02X:%02X:%02X", myPeerList[c].mac[0], myPeerList[c].mac[1], myPeerList[c].mac[2], myPeerList[c].mac[3], myPeerList[c].mac[4], myPeerList[c].mac[5]);
+        PeerMac.text = macStr;
+        Alias.text = myPeerList[c].alias;
+        MainMenu.update();
+        break;
+      case 7:
+        peerCount = 0;
+        for (int p = 0; p < NUM_PEERS; p++) {
+          if (myPeerList[p].active) {
+            peerCount++;
+          }
+        }
+        sprintf(numPeersStr, "# of Peers: %d", peerCount);
+        numPeers.text = numPeersStr;
+        MainMenu.update();
         break;
     }
   }
