@@ -18,9 +18,9 @@ class EspNowClient {
 public:
   EspNowClient(uint8_t gatewayMAC[6], const char *clientAlias);
   bool begin();
-  bool subscribe(char topic[]);
-  bool unsubscribe(char topic[]);
-  bool publish(char topic[], char payload[]);
+  bool subscribe(const char* topic);
+  bool unsubscribe(const char* topic);
+  bool publish(const char* topic, const char* payload);
   // queue methods
   bool enqueue(message_t msg, int msTimeout);
   bool dequeue(message_t *msgPtr);
