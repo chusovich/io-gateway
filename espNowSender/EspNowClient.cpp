@@ -1,5 +1,5 @@
 #include "EspNowClient.h"
-
+// globals
 Queue espNowQueue(25);
 
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
@@ -18,6 +18,7 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size
   }
 }
 
+// class methods
 EspNowClient::EspNowClient(uint8_t gatewayMAC[6], const char* clientAlias) {
   for (int i = 0; i < 6; i++) {
     _gtwMac[i] = gatewayMAC[i];
@@ -71,13 +72,13 @@ bool EspNowClient::begin() {
 }
 
 bool EspNowClient::subscribe(char topic[]) {
-  char msgBuf[250];
   JsonDocument doc;
   doc["id"] = 4;  // subscribe msg code
   for (int i = 0; i < 6; i++) {
     doc["mac"][i] = _myMac[i];
   }
   doc["topic"] = topic;
+  char msgBuf[250];
   serializeJson(doc, msgBuf);
   Serial.printf("Sending msg: %s\n", msgBuf);
   if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
@@ -87,13 +88,13 @@ bool EspNowClient::subscribe(char topic[]) {
 }
 
 bool EspNowClient::unsubscribe(char topic[]) {
-  char msgBuf[250];
   JsonDocument doc;
   doc["id"] = 6;  // unsubscribe msg code
   for (int i = 0; i < 6; i++) {
     doc["mac"][i] = _myMac[i];
   }
   doc["topic"] = topic;
+  char msgBuf[250];
   serializeJson(doc, msgBuf);
   Serial.printf("Sending msg: %s\n", msgBuf);
   if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
@@ -103,11 +104,11 @@ bool EspNowClient::unsubscribe(char topic[]) {
 }
 
 bool EspNowClient::publish(char topic[], char payload[]) {
-  char msgBuf[250];
   JsonDocument doc;
   doc["id"] = 5;  // publish msg code
   doc["topic"] = topic;
   doc["payload"] = payload;
+  char msgBuf[250];
   serializeJson(doc, msgBuf);
   Serial.printf("Sending msg: %s\n", msgBuf);
   if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
