@@ -71,7 +71,7 @@ bool EspNowClient::begin() {
   return false;
 }
 
-bool EspNowClient::subscribe(char topic[]) {
+bool EspNowClient::subscribe(const char* topic) {
   JsonDocument doc;
   doc["id"] = 4;  // subscribe msg code
   for (int i = 0; i < 6; i++) {
@@ -87,7 +87,7 @@ bool EspNowClient::subscribe(char topic[]) {
   return false;
 }
 
-bool EspNowClient::unsubscribe(char topic[]) {
+bool EspNowClient::unsubscribe(cosnt char* topic) {
   JsonDocument doc;
   doc["id"] = 6;  // unsubscribe msg code
   for (int i = 0; i < 6; i++) {
@@ -103,7 +103,7 @@ bool EspNowClient::unsubscribe(char topic[]) {
   return false;
 }
 
-bool EspNowClient::publish(char topic[], char payload[]) {
+bool EspNowClient::publish(const char* topic, const char* payload) {
   JsonDocument doc;
   doc["id"] = 5;  // publish msg code
   doc["topic"] = topic;
