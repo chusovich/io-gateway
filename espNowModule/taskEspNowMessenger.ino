@@ -6,7 +6,8 @@ void taskEspNowMessenger(void *) {
   DeserializationError jsonError;
   char jsonString[300];
   uint8_t macAddr[6];
-  gtw.begin();
+  Serial.print("Begin: ");
+  Serial.println(gtw.begin());
   gtw.setQueue(&espNowQueue);
   displayMsg.id = 4;
   String macString = "MAC:";
@@ -15,15 +16,17 @@ void taskEspNowMessenger(void *) {
   displayQueue.enqueue(displayMsg, 100);
   displayMsg.id = 7;
   displayQueue.enqueue(displayMsg, 100);
-
+  Serial.println("starting esp-now loop");
   for (;;) {
     espNowQueue.peek(&msg);  // see if we have a message
+    Serial.println("peed at queue");
     jsonError = deserializeJson(doc, msg.string);
     if (jsonError) {
       Serial.printf("deserializeJson() failed: %s\n", jsonError.c_str());
     } else {
       espNowQueue.dequeue(&msg);
-      serializeJson(doc, jsonString);  // Serial.printf("dequeued msg: %d", doc["id"].as<int>());
+      serializeJson(doc, jsonString);
+      Serial.printf("dequeued msg: %d", doc["id"].as<int>());
       switch (doc["id"].as<int>()) {
         case 1:  // send message - expect "topic" and "payload" objects in json doc
           gtw.forwardMessage(doc["topic"], doc["payload"]);

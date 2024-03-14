@@ -1,7 +1,7 @@
 #ifndef EspNowGateway_h
 #define EspNowGateway_h
 #include "Arduino.h"
-#include <freeRTOS_API.h>
+#include <freeRTOS_pp.h>
 #include <WifiEspNow.h>
 #include <ArduinoJson.h>
 
@@ -20,8 +20,9 @@ struct PeerData {
 class EspNowGateway {
 public:
   // functions
+  void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg);
   void setQueue(Queue *queue);
-  void begin();
+  bool begin();
   void addPeer(uint8_t mac[6]);
   void refresh();
   void subPeerToTopic(const uint8_t mac[6], String topic);

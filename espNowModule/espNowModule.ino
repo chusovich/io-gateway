@@ -1,10 +1,9 @@
 #define QUEUE_DATA_BUFFER_SIZE 275
-#include <freeRTOS_API.h>
+#include <freeRTOS_pp.h>
 #include "WiFi.h"
 #include <menuBuilder.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <StreamUtils.h>
 #define ARDUINOJSON_ENABLE_ARDUINO_STREAM 1
 #include <ArduinoJson.h>
 #include "EspNowGateway.h"
@@ -73,9 +72,9 @@ void setup() {
   espNowQueue.create();
   displayQueue.create();
   displayTimeout.create("timer", 5000, false, 1, timerCallback);
-  espNowMessenger.createTask(taskEspNowMessenger, PRO_CORE);
-  serialReader.createTask(taskSerialReader, APP_CORE);
-  displayManager.createTask(taskDisplay, APP_CORE);
+  espNowMessenger.create(taskEspNowMessenger, PRO_CORE);
+  serialReader.create(taskSerialReader, APP_CORE);
+  displayManager.create(taskDisplay, APP_CORE);
   // other setup
   createMenus();
   setupEncoderPins();

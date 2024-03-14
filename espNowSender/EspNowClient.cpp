@@ -36,19 +36,27 @@ bool EspNowClient::begin() {
   WiFi.softAPdisconnect(false);
   bool initBool = WifiEspNow.begin();
   if (!initBool) {
-    // Serial.println("WifiEspNow.begin() failed");
-    ESP.restart();
+    return false;
+  }
+  initBool = WifiEspNow.addPeer(_gtwMac);
+  if (!initBool) {
+    return false;
   }
   WifiEspNow.onReceive(espNowCallback, _espNowQueue);
   WiFi.softAPmacAddress(_myMac);
-  char msgBuf[250];
+  char msgBuf[245];
   JsonDocument doc;
   for (int i = 0; i < 6; i++) {
     doc["mac"][i] = _myMac[i];
   }
   doc["alias"] = _alias;
   serializeJson(doc, msgBuf);
-  return WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf));
+  Serial.printf("Sending msg: %s\n", msgBuf);
+  Serial.printf("Gatway MAC:%02X:%02X:%02X:%02X:%02X:%02X\n", _gtwMac[0], _gtwMac[1], _gtwMac[2], _gtwMac[3], _gtwMac[4], _gtwMac[5]);
+  if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
+    return true;
+  }
+  return false;
 }
 
 bool EspNowClient::subscribe(char topic[]) {
@@ -60,7 +68,11 @@ bool EspNowClient::subscribe(char topic[]) {
   }
   doc["topic"] = topic;
   serializeJson(doc, msgBuf);
-  return WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf));
+  Serial.printf("Sending msg: %s\n", msgBuf);
+  if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
+    return true;
+  }
+  return false;
 }
 
 bool EspNowClient::unsubscribe(char topic[]) {
@@ -72,7 +84,11 @@ bool EspNowClient::unsubscribe(char topic[]) {
   }
   doc["topic"] = topic;
   serializeJson(doc, msgBuf);
-  return WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf));
+  Serial.printf("Sending msg: %s\n", msgBuf);
+  if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
+    return true;
+  }
+  return false;
 }
 
 bool EspNowClient::publish(char topic[], char payload[]) {
@@ -82,5 +98,9 @@ bool EspNowClient::publish(char topic[], char payload[]) {
   doc["topic"] = topic;
   doc["payload"] = payload;
   serializeJson(doc, msgBuf);
-  return WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf));
+  Serial.printf("Sending msg: %s\n", msgBuf);
+  if (WifiEspNow.send(_gtwMac, reinterpret_cast<const uint8_t*>(msgBuf), strlen(msgBuf))) {
+    return true;
+  }
+  return false;
 }
