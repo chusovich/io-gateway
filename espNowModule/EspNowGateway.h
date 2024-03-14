@@ -5,10 +5,10 @@
 #include <WifiEspNow.h>
 #include <ArduinoJson.h>
 
-void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t *buf, size_t count, void *arg);
-
 #define NUM_PEERS 10
 #define NUM_TOPICS 12
+
+void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t *buf, size_t count, void *arg);
 
 struct PeerData {
   bool active = false;
@@ -20,8 +20,9 @@ struct PeerData {
 class EspNowGateway {
 public:
   // functions
-  void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg);
-  void setQueue(Queue *queue);
+  bool enqueue(message_t msg, int msTimeout);
+  bool dequeue(message_t *msgPtr);
+  bool peek(message_t *msgPtr);
   bool begin();
   void addPeer(uint8_t mac[6]);
   void refresh();
@@ -30,9 +31,5 @@ public:
   void forwardMessage(String topic, String payload);
   // data
   String macAddress;
-private:
-  Queue *_espNowQueue;
-  // for array of type: type arr_name[size];
-  // type *ptr_name = &arr_name
 };
 #endif

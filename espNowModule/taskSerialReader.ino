@@ -11,7 +11,7 @@ void taskSerialReader(void *) {
     } else {
       doc.shrinkToFit();  // optional
       serializeJson(doc, msg.string); // Serial.printf("message_t.string: %s\n", msg.string);
-      espNowQueue.enqueue(msg, 1000);
+      gtw.enqueue(msg, 1000);
     }
   }
 }

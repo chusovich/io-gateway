@@ -14,7 +14,6 @@
 Task espNowMessenger("ESP-NOW Messenger", 8192, 1);
 Task serialReader("Serial Read Task", 4096, 1);
 Task displayManager("Display Update Task", 4096, 0);
-Queue espNowQueue(25);
 Queue displayQueue(10);
 Timer displayTimeout;
 
@@ -69,7 +68,6 @@ void setup() {
   display.clearDisplay();
   display.display();
   // start up tasks and queues
-  espNowQueue.create();
   displayQueue.create();
   displayTimeout.create("timer", 5000, false, 1, timerCallback);
   espNowMessenger.create(taskEspNowMessenger, PRO_CORE);

@@ -17,7 +17,9 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t *buf, size
 class EspNowClient {
 public:
   EspNowClient(uint8_t gatewayMAC[6], const char *clientAlias);
-  void setQueue(Queue *queue);
+  bool enqueue(message_t msg, int msTimeout);
+  bool dequeue(message_t *msgPtr);
+  bool peek(message_t *msgPtr);
   bool begin();
   bool subscribe(char topic[]);
   bool unsubscribe(char topic[]);
@@ -26,6 +28,5 @@ private:
   uint8_t _gtwMac[6];
   uint8_t _myMac[6];
   char _alias[20];
-  Queue *_espNowQueue;
 };
 #endif

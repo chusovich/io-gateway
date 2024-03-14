@@ -1,5 +1,7 @@
 #include "EspNowClient.h"
 
+Queue espNowQueue(25);
+
 void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
   JsonDocument doc;
   message_t cbMsg;
@@ -9,11 +11,10 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size
   }
   DeserializationError error = deserializeJson(doc, buffer, 250);
   if (!error) {
-    // for (int i = 0; i < 6; i++) {
-    //   doc["mac"][i] = mac[i];
-    // }
     serializeJson(doc, cbMsg.string);
-    static_cast<Queue*>(arg)->enqueue(cbMsg, 1000);
+    Serial.println("Json serialized!");
+    espNowQueue.enqueue(cbMsg, 100);
+    Serial.println("message enquqeued!");
   }
 }
 
@@ -24,11 +25,21 @@ EspNowClient::EspNowClient(uint8_t gatewayMAC[6], const char* clientAlias) {
   strcpy(_alias, clientAlias);
 }
 
-void EspNowClient::setQueue(Queue* queue) {
-  _espNowQueue = queue;
+bool EspNowClient::enqueue(message_t msg, int msTimeout) {
+  return espNowQueue.enqueue(msg, msTimeout);
 }
 
+bool EspNowClient::dequeue(message_t* msgPtr) {
+  return espNowQueue.dequeue(msgPtr);
+}
+
+bool EspNowClient::peek(message_t* msgPtr) {
+  return espNowQueue.peek(msgPtr);
+}
+
+
 bool EspNowClient::begin() {
+  espNowQueue.create();
   WiFi.persistent(false);
   WiFi.mode(WIFI_AP);
   WiFi.disconnect();
@@ -42,7 +53,7 @@ bool EspNowClient::begin() {
   if (!initBool) {
     return false;
   }
-  WifiEspNow.onReceive(espNowCallback, _espNowQueue);
+  WifiEspNow.onReceive(espNowCallback, nullptr);
   WiFi.softAPmacAddress(_myMac);
   char msgBuf[245];
   JsonDocument doc;

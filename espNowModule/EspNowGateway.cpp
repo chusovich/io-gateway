@@ -1,9 +1,9 @@
 #include "EspNowGateway.h"
 
 extern PeerData myPeerList[NUM_PEERS];
-// esp_now_register_recv_cb(reinterpret_cast<esp_now_recv_cb_t>(WifiEspNowClass::rx)) == 0 &&
+Queue gtwQueue(25);
 
-void EspNowGateway::espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
+void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg) {
   JsonDocument doc;
   message_t cbMsg;
   char buffer[250];
@@ -14,18 +14,22 @@ void EspNowGateway::espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uin
   if (!error) {
     serializeJson(doc, cbMsg.string);
     Serial.println("Json serialized!");
-    //int* value = static_cast<int*>(arg);
-    // Serial.printf("Value: %d\n", *value);
+    gtwQueue.enqueue(cbMsg, 100);
     Serial.println("message enquqeued!");
   }
 }
 
-void EspNowGateway::setQueue(Queue* queue) {
-  _espNowQueue = queue;
+bool EspNowGateway::enqueue(message_t msg, int msTimeout) {
+  return gtwQueue.enqueue(msg, msTimeout);
 }
 
-using RxCallback = void (*)(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size_t count, void* arg);
+bool EspNowGateway::dequeue(message_t* msgPtr) {
+  return gtwQueue.dequeue(msgPtr);
+}
 
+bool EspNowGateway::peek(message_t* msgPtr) {
+  return gtwQueue.peek(msgPtr);
+}
 
 bool EspNowGateway::begin() {
   WiFi.persistent(false);
@@ -35,12 +39,12 @@ bool EspNowGateway::begin() {
   WiFi.softAPdisconnect(false);
   bool initBool = WifiEspNow.begin();
   if (!initBool) {
-    // Serial.println("WifiEspNow.begin() failed");
     return false;
   }
   int thing = 3;
   void* queuePtr = &thing;
-  WifiEspNow.onReceive(reinterpret_cast<RxCallback>(EspNowGateway::espNowCallback), nullptr);
+  gtwQueue.create();
+  WifiEspNow.onReceive(espNowCallback, nullptr);
   macAddress = WiFi.softAPmacAddress();
   return true;
 }
