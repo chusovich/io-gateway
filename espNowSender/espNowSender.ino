@@ -15,19 +15,19 @@ void senderTask(void *) {
   Serial.println(myClient.subscribe("myTopic"));
   for (;;) {
     myClient.publish("myTopic", "hello!");
-    vTaskDelay(5000);
+    vTaskDelay(10000);
   }
 }
 
 void dequeueTask(void *) {
   for (;;) {
     myClient.dequeue(&msg);
-    serializeJson(queueDoc, msg.string);
+    deserializeJson(queueDoc, msg.string);
     switch (queueDoc["id"].as<int>()) {
       case 1:
         break;
       default:
-        Serial.println(msg.string);
+        Serial.println(String(queueDoc["topic"]));
         break;
     }
   }

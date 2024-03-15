@@ -19,7 +19,7 @@ void taskEspNowMessenger(void *) {
   Serial.println("starting esp-now loop");
   for (;;) {
     gtw.peek(&msg);  // see if we have a message
-    Serial.println("peed at queue");
+    // Serial.println("peek at queue");
     jsonError = deserializeJson(doc, msg.string);
     if (jsonError) {
       Serial.printf("deserializeJson() failed: %s\n", jsonError.c_str());
@@ -44,10 +44,12 @@ void taskEspNowMessenger(void *) {
           displayQueue.enqueue(msg, 100);
           break;
         case 4:  // sub - expected "topic" and "mac" objects in json doc, "id" is reused
+          Serial.println("Sub case");
           jsonMac = doc["mac"];
           for (int i = 0; i < 6; i++) {
             macAddr[i] = jsonMac[i];
           }
+          Serial.println("adding topic...");
           gtw.subPeerToTopic(macAddr, doc["topic"]);
           serializeJson(doc, Serial);  // tell mqtt to sub to this topic
           break;

@@ -38,7 +38,6 @@ bool EspNowClient::peek(message_t* msgPtr) {
   return espNowQueue.peek(msgPtr);
 }
 
-
 bool EspNowClient::begin() {
   espNowQueue.create();
   WiFi.persistent(false);
@@ -62,6 +61,7 @@ bool EspNowClient::begin() {
     doc["mac"][i] = _myMac[i];
   }
   doc["alias"] = _alias;
+  doc["id"] = 3;
   serializeJson(doc, msgBuf);
   Serial.printf("Sending msg: %s\n", msgBuf);
   Serial.printf("Gatway MAC:%02X:%02X:%02X:%02X:%02X:%02X\n", _gtwMac[0], _gtwMac[1], _gtwMac[2], _gtwMac[3], _gtwMac[4], _gtwMac[5]);
@@ -87,7 +87,7 @@ bool EspNowClient::subscribe(const char* topic) {
   return false;
 }
 
-bool EspNowClient::unsubscribe(cosnt char* topic) {
+bool EspNowClient::unsubscribe(const char* topic) {
   JsonDocument doc;
   doc["id"] = 6;  // unsubscribe msg code
   for (int i = 0; i < 6; i++) {
