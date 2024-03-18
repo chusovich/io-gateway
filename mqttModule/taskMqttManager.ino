@@ -1,5 +1,5 @@
 void taskMqttManager(void*) {
-  Serial.println("mqtt manager intialized");
+  // Serial.println("mqtt manager intialized");
   message_t message;
   message_t displayMsg;
   displayMsg.id = 5;
@@ -15,7 +15,7 @@ void taskMqttManager(void*) {
         vTaskDelay(200 / portTICK_PERIOD_MS);
         // Serial.println("client loop");
       } else {
-        Serial.println("attempting to connect");
+        // Serial.println("attempting to connect");
         if (client.connect(clientID, MQTTusername, MQTTpassword)) {
           // send json message over serial to ESP-NOW module
           JsonDocument doc;
@@ -42,6 +42,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) {
     data[i] = (char)payload[i];
   }
+  data[length] = '\0';
   doc["id"] = 1;
   doc["payload"] = data;
   doc["topic"] = topic;

@@ -16,7 +16,7 @@ void taskEspNowMessenger(void *) {
   displayMsg.id = 7;
   displayQueue.enqueue(displayMsg, 100);
 
-  Serial.println("starting esp-now loop");
+  // Serial.println("starting esp-now loop");
   for (;;) {
     gtw.peek(&msg);  // see if we have a message
     // Serial.println("peek at queue");
@@ -26,7 +26,7 @@ void taskEspNowMessenger(void *) {
     } else {
       gtw.dequeue(&msg);
       serializeJson(doc, jsonString);
-      Serial.printf("dequeued msg: %d", doc["id"].as<int>());
+      // Serial.printf("dequeued msg: %d", doc["id"].as<int>());
       switch (doc["id"].as<int>()) {
         case 1:  // send message - expect "topic" and "payload" objects in json doc
           gtw.forwardMessage(doc["topic"], doc["payload"]);
@@ -44,12 +44,12 @@ void taskEspNowMessenger(void *) {
           displayQueue.enqueue(msg, 100);
           break;
         case 4:  // sub - expected "topic" and "mac" objects in json doc, "id" is reused
-          Serial.println("Sub case");
+          // Serial.println("Sub case");
           jsonMac = doc["mac"];
           for (int i = 0; i < 6; i++) {
             macAddr[i] = jsonMac[i];
           }
-          Serial.println("adding topic...");
+          // Serial.println("adding topic...");
           gtw.subPeerToTopic(macAddr, doc["topic"]);
           serializeJson(doc, Serial);  // tell mqtt to sub to this topic
           break;

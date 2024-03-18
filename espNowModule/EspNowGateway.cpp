@@ -15,7 +15,7 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size
     serializeJson(doc, cbMsg.string);
     // Serial.println("Json serialized!");
     gtwQueue.enqueue(cbMsg, 100);
-    Serial.println("message enquqeued from cb!");
+    // Serial.println("message enquqeued from cb!");
   }
 }
 
@@ -77,13 +77,13 @@ void EspNowGateway::addPeer(uint8_t mac[6]) {
       myPeerList[i].mac[3] = mac[3];
       myPeerList[i].mac[4] = mac[4];
       myPeerList[i].mac[5] = mac[5];
-      Serial.println("Peer added!");
-      Serial.print("Mac: ");
-      for (int j = 0; j <= 6; j++) {
-        Serial.print(myPeerList[0].mac[j]);
-        Serial.print(":");
-      }
-      Serial.println();
+      // Serial.println("Peer added!");
+      // Serial.print("Mac: ");
+      // for (int j = 0; j <= 6; j++) {
+      //   Serial.print(myPeerList[0].mac[j]);
+      //   Serial.print(":");
+      // }
+      // Serial.println();
       break;  // after adding the peer, stop looping
     }
   }
@@ -98,7 +98,7 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
       for (int t = 0; t <= NUM_TOPICS; t++) {         // go through all of its topics
         if (myPeerList[p].topics[t].equals(topic)) {  // check if the topic has aleady been added
           alreadyAdded = true;
-          Serial.println("Error: topic has already been added");
+          // Serial.println("Error: topic has already been added");
         }
       }
       if (!alreadyAdded) {  // if the topic has not been already added
@@ -106,7 +106,7 @@ void EspNowGateway::subPeerToTopic(const uint8_t mac[6], String topic) {
         for (int t = 0; t <= NUM_TOPICS; t++) {  // go through all of its topics
           if (myPeerList[p].topics[t] == "") {   // and if the topic element is empty
             myPeerList[p].topics[t] = topic;     // add it to the list
-            Serial.println("Topic added succesfully!");
+            //Serial.println("Topic added succesfully!");
             notAdded = false;
             break;
           }
@@ -130,7 +130,6 @@ void EspNowGateway::forwardMessage(String topic, String payload) {
           // create the message buffer and send the message
           serializeJson(doc, buffer);
           WifiEspNow.send(myPeerList[i].mac, reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
-          Serial.println("Message Sent!");
         }
       }
     }

@@ -1,17 +1,15 @@
 #define QUEUE_DATA_BUFFER_SIZE 100
-#include <freeRTOS_API.h>
+#include <freeRTOS_pp.h>
 #include "WiFi.h"
 #include <PubSubClient.h>
 #include <menuBuilder.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "secret.h"
-#include <StreamUtils.h>
 #define ARDUINOJSON_ENABLE_ARDUINO_STREAM 1
 #include <ArduinoJson.h>
 
 // ----------- json declarations ----------- //
-ReadBufferingStream bufferingStream(Serial, 150);
 // json docs are declared in the tasks
 
 // ----------- MQTT objects ----------- //
@@ -22,8 +20,8 @@ PubSubClient client(espClient);
 #define PRO_CORE 0
 #define APP_CORE 1
 Task wifiManager("WiFi Manager", 4096, 1);
-Task mqttManager("MQTT Connection Manager", 8192, 1);
-Task mqttMessenger("MQTT Messenger", 4096, 1);
+Task mqttManager("MQTT Cnct", 8192, 1);
+Task mqttMessenger("MQTT Msger", 4096, 1);
 Task serialReader("Serial Read Task", 4096, 1);
 Task displayManager("Display Update Task", 4096, 0);
 Queue mqttQueue(25);
@@ -57,27 +55,36 @@ int switchPin = 5;
 volatile int count = 0;
 volatile int clkPinLast = LOW;
 volatile int clkPinCurrent = LOW;
-static message_t isrMsg = {1,"null"};
-static message_t btnMsg = {2,"null"};
+static message_t isrMsg = { 1, "null" };
+static message_t btnMsg = { 2, "null" };
 void encoderInterrupt();
 void switchInterrupt();
 void setupEncoderPins();
 
 // ----------- setup ----------- //
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(2000);
   Serial.begin(115200);
-  // init OLED display
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
   }
   display.clearDisplay();
   display.display();
+  display.clearDisplay();
+  display.setTextSize(2);  // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);  // Start at top-left corner
+  display.print(F("0x"));
+  display.println(0xDEADBEEF, HEX);
+  display.display();
   // start up tasks and queues
-  wifiManager.createTask(taskWifiManager, PRO_CORE);
-  mqttManager.createTask(taskMqttManager, PRO_CORE);
-  mqttMessenger.createTask(taskMqttMessenger, PRO_CORE);
-  serialReader.createTask(taskSerialReader, APP_CORE);
-  displayManager.createTask(taskDisplay, APP_CORE);
+  wifiManager.create(taskWifiManager, PRO_CORE);
+  mqttManager.create(taskMqttManager, PRO_CORE);
+  mqttMessenger.create(taskMqttMessenger, PRO_CORE);
+  serialReader.create(taskSerialReader, APP_CORE);
+  displayManager.create(taskDisplay, APP_CORE);
   mqttQueue.create();
   displayQueue.create();
   displayTimeout.create("timer", 10000, false, 1, timerCallback);
