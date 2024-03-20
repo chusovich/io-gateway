@@ -45,6 +45,8 @@ Screen HomeScreen(0, &display);
 Screen PeerView(1, &display);
 Menu MainMenu(0);
 
+#define serialLED 9
+
 // ----------- encoder setup ----------- //
 volatile int clkPin = 1;
 volatile int dtPin = 2;

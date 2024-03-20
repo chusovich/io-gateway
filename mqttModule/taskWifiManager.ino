@@ -15,6 +15,6 @@ void taskWifiManager(void *) {
       strcpy(displayMsg.string, "WiFi: connected");
       displayQueue.enqueue(displayMsg, 1000);
     }
-    vTaskDelay(15000 / portTICK_PERIOD_MS);  // this task runs every 10 sec
+    vTaskDelay(15000 / portTICK_PERIOD_MS);  // this task runs every 15 sec
   }
 }

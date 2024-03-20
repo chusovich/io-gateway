@@ -12,10 +12,8 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size
   }
   DeserializationError error = deserializeJson(doc, buffer, 250);
   if (!error) {
-    serializeJson(doc, cbMsg.string);
-    // Serial.println("Json serialized!");
-    gtwQueue.enqueue(cbMsg, 100);
-    // Serial.println("message enquqeued from cb!");
+    serializeJson(doc, cbMsg.string);  // Serial.println("Json serialized!");
+    gtwQueue.enqueue(cbMsg, 100);      // Serial.println("message enquqeued from cb!");
   }
 }
 
@@ -32,6 +30,7 @@ bool EspNowGateway::peek(message_t* msgPtr) {
 }
 
 bool EspNowGateway::begin() {
+  gtwQueue.create();
   WiFi.persistent(false);
   WiFi.mode(WIFI_AP);
   WiFi.disconnect();
@@ -41,9 +40,6 @@ bool EspNowGateway::begin() {
   if (!initBool) {
     return false;
   }
-  int thing = 3;
-  void* queuePtr = &thing;
-  gtwQueue.create();
   WifiEspNow.onReceive(espNowCallback, nullptr);
   macAddress = WiFi.softAPmacAddress();
   return true;
@@ -121,14 +117,14 @@ void EspNowGateway::forwardMessage(String topic, String payload) {
   JsonDocument doc;
   doc["topic"] = topic;
   doc["payload"] = payload;
+  serializeJson(doc, buffer);            // create the message buffer
   for (int i = 0; i < NUM_PEERS; i++) {  // for each peer...
     if (myPeerList[i].active) {          // if it is active...
       // Serial.print("Active Mac: "); Serial.println(peerList[i].mac[0]);
       for (int j = 0; j < NUM_TOPICS; j++) {  // search through all 12 topics
         // Serial.println("Searching Topics...");
         if (myPeerList[i].topics[j].equals(topic)) {  // if we find a match...
-          // create the message buffer and send the message
-          serializeJson(doc, buffer);
+                                                      // send the message
           WifiEspNow.send(myPeerList[i].mac, reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
         }
       }
@@ -144,6 +140,7 @@ void EspNowGateway::refresh() {
       if (myPeerList[i].topics[j].indexOf("/") != -1) {
         jsonDoc["topic"] = myPeerList[i].topics[j];
         serializeJson(jsonDoc, Serial);
+        jsonDoc["topic"] = "";
       }
     }
   }

@@ -12,9 +12,8 @@ void espNowCallback(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, size
   DeserializationError error = deserializeJson(doc, buffer, 250);
   if (!error) {
     serializeJson(doc, cbMsg.string);
-    Serial.println("Json serialized!");
     espNowQueue.enqueue(cbMsg, 100);
-    Serial.println("message enquqeued!");
+    Serial.println("message recieved!");
   }
 }
 

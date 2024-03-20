@@ -9,8 +9,9 @@ message_t msg;
 JsonDocument queueDoc;
 
 void senderTask(void *) {
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
   Serial.println(myClient.subscribe("Switches/BedroomLamp/Value"));
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
   for (;;) {
     myClient.publish("Switches/BedroomLamp/Value", "0");
     vTaskDelay(5000 / portTICK_PERIOD_MS);

@@ -48,6 +48,8 @@ Line Title(0, 32, 100, "MQTT Module"), WifiStatus(8, 0, 101, "WiFi: disconnected
 Screen HomeScreen(0, &display);
 Menu MainMenu(0);
 
+#define serialLED 9;
+
 // ----------- encoder setup ----------- //
 volatile int clkPin = 2;
 volatile int dtPin = 3;
@@ -73,11 +75,10 @@ void setup() {
   display.clearDisplay();
   display.display();
   display.clearDisplay();
-  display.setTextSize(2);  // Draw 2X-scale text
+  display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);  // Start at top-left corner
-  display.print(F("0x"));
-  display.println(0xDEADBEEF, HEX);
+  display.print("Launching...");
   display.display();
   // start up tasks and queues
   wifiManager.create(taskWifiManager, PRO_CORE);

@@ -24,9 +24,12 @@ void taskMqttManager(void*) {
           // updat display
           strcpy(displayMsg.string, "MQTT: connected");
           displayQueue.enqueue(displayMsg, 1000);
+          digitalWrite(LED_BUILTIN, LOW);
         } else {
           strcpy(displayMsg.string, "MQTT: disconnected");
           displayQueue.enqueue(displayMsg, 1000);
+          digitalWrite(LED_BUILTIN, HIGH);
+          delay(100);
         }
         vTaskDelay(2000 / portTICK_PERIOD_MS);
       }
