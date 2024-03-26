@@ -7,7 +7,7 @@ void taskMqttMessenger(void*) {
 
   for (;;) {
     if (client.connected()) {
-      mqttQueue.peek(&msg, 2000);  // see if we have a message
+      mqttQueue.peek(&msg);  // see if we have a message
       jsonError = deserializeJson(doc, msg.string);
       // Serial.printf("message received: %s\n", msg.string);
       if (jsonError) {
@@ -15,13 +15,14 @@ void taskMqttMessenger(void*) {
         // Serial.println(jsonError.c_str());
         mqttQueue.dequeue(&msg);
       } else {
+        msg.string[0] = '\0';
         switch (doc["id"].as<int>()) {
           case 5:  // pub
             strlcpy(topic, doc["topic"] | "<null>", 32);
             strlcpy(payload, doc["payload"] | "<null>", 32);
             if (strcmp(topic, "<null>") != 0) {
               if (client.publish(topic, payload)) {
-                // Serial.printf("topic to pub: %s\n", topic);
+                Serial.printf("topic to pub: %s\n", topic);
                 // Serial.printf("payload to pub: %s\n", payload);
                 mqttQueue.dequeue(&msg, 100);
                 topic[0] = '\0';
@@ -34,7 +35,7 @@ void taskMqttMessenger(void*) {
             strlcpy(topic, doc["topic"] | "<null>", 32);
             if (strcmp(topic, "<null>") != 0) {
               if (client.subscribe(topic)) {
-                // Serial.printf("topic to pub: %s\n", topic);
+                Serial.printf("topic to sub: %s\n", topic);
                 mqttQueue.dequeue(&msg, 100);
                 topic[0] = '\0';
               }
@@ -45,6 +46,7 @@ void taskMqttMessenger(void*) {
             strlcpy(topic, doc["topic"] | "<null>", 32);
             if (strcmp(topic, "<null>") != 0) {
               if (client.unsubscribe(doc["topic"])) {
+                Serial.printf("topic to unsub: %s\n", topic);
                 mqttQueue.dequeue(&msg, 100);
                 topic[0] = '\0';
               }
@@ -53,5 +55,6 @@ void taskMqttMessenger(void*) {
         }  // switch statement
       }    // else
     }      // infinite loop
-  }        // if connected
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }  // if connected
 }

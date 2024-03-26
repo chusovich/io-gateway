@@ -7,12 +7,13 @@ void taskWifiManager(void *) {
     if (WiFi.status() != WL_CONNECTED) {
       strcpy(displayMsg.string, "WiFi: disconnected");
       displayQueue.enqueue(displayMsg, 1000);
-      // Serial.println("Wifi not connected!");
+      Serial.println("Wifi not connected!");
       WiFi.disconnect();
       WiFi.mode(WIFI_STA);
       WiFi.begin(ssid, password);
     } else {
       strcpy(displayMsg.string, "WiFi: connected");
+      Serial.println("Wifi Connected!");
       displayQueue.enqueue(displayMsg, 1000);
     }
     vTaskDelay(15000 / portTICK_PERIOD_MS);  // this task runs every 15 sec

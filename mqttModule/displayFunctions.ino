@@ -10,7 +10,7 @@ void createMenus() {
 void refresh() {
   JsonDocument doc;
   doc["msgID"] = 2;  // tell the ESP-NOW module to resub to the topic in the peer list
-  serializeJson(doc, Serial);
+  serializeJson(doc, Serial1);
 }
 
 void timerCallback(TimerHandle_t timerHandle) {

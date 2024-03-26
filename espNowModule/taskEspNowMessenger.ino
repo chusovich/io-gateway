@@ -30,9 +30,11 @@ void taskEspNowMessenger(void *) {
       switch (doc["id"].as<int>()) {
         case 1:  // send message - expect "topic" and "payload" objects in json doc
           gtw.forwardMessage(doc["topic"], doc["payload"]);
+          Serial.println("forwarding message");
           break;
         case 2:  // refresh - no json data need
           gtw.refresh();
+          Serial.println("refresh");
           break;
         case 3:  // add peer - "mac" object expected in json doc, "id" is reused
           jsonMac = doc["mac"];
@@ -42,6 +44,7 @@ void taskEspNowMessenger(void *) {
           gtw.addPeer(macAddr);  // add peer to our peer list
           msg.id = 7;
           displayQueue.enqueue(msg, 100);
+          Serial.println("adding peer");
           break;
         case 4:  // sub - expected "topic" and "mac" objects in json doc, "id" is reused
           // Serial.println("Sub case");
@@ -49,12 +52,13 @@ void taskEspNowMessenger(void *) {
           for (int i = 0; i < 6; i++) {
             macAddr[i] = jsonMac[i];
           }
-          // Serial.println("adding topic...");
+          Serial.println("sub message");
           gtw.subPeerToTopic(macAddr, doc["topic"]);
-          serializeJson(doc, Serial);  // tell mqtt to sub to this topic
+          serializeJson(doc, Serial1);  // tell mqtt to sub to this topic
           break;
-        case 5:                        // pub - "topic" and "payload" objects expected, id is reused
-          serializeJson(doc, Serial);  // tell mqtt to publish the topic and payload
+        case 5:                         // pub - "topic" and "payload" objects expected, id is reused
+          serializeJson(doc, Serial1);  // tell mqtt to publish the topic and payload
+          Serial.println("pub message");
           break;
         case 6:  // unsub - expected "topic" and "mac" objects in json doc, "id" is reused
           jsonMac = doc["mac"];
@@ -62,7 +66,8 @@ void taskEspNowMessenger(void *) {
             macAddr[i] = jsonMac[i];
           }
           gtw.subPeerToTopic(macAddr, doc["topic"]);
-          serializeJson(doc, Serial);  // tell mqtt to sub to this topic
+          serializeJson(doc, Serial1);  // tell mqtt to sub to this topic
+          Serial.println("unsub message");
           break;
       }  // switch statement
     }    // else

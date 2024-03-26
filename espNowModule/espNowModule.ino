@@ -64,6 +64,7 @@ void setupEncoderPins();
 void setup() {
   delay(2000);
   Serial.begin(115200);
+  Serial1.begin(115200, SERIAL_8N1, D8, D10);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
   }
@@ -82,6 +83,6 @@ void setup() {
 }
 
 void loop() {
-  // uxTaskGetStackHighWaterMark(NULL); // return in words so multiply by four 
+  // uxTaskGetStackHighWaterMark(NULL); // return in words so multiply by four
   // xPortGetFreeHeapSize(); // return bytes
 }

@@ -20,15 +20,13 @@ void taskMqttManager(void*) {
           // send json message over serial to ESP-NOW module
           JsonDocument doc;
           doc["msgID"] = 2;  // cmd to the topic in the peer list
-          serializeJson(doc, Serial);
+          serializeJson(doc, Serial1);
           // updat display
-          strcpy(displayMsg.string, "MQTT: connected");
+          strcpy(displayMsg.string, "MQTT: connected"); Serial.println("MQTT Connected");
           displayQueue.enqueue(displayMsg, 1000);
-          digitalWrite(LED_BUILTIN, LOW);
         } else {
-          strcpy(displayMsg.string, "MQTT: disconnected");
+          strcpy(displayMsg.string, "MQTT: disconnected"); Serial.println("MQTT Disconnected");
           displayQueue.enqueue(displayMsg, 1000);
-          digitalWrite(LED_BUILTIN, HIGH);
           delay(100);
         }
         vTaskDelay(2000 / portTICK_PERIOD_MS);
@@ -49,5 +47,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
   doc["id"] = 1;
   doc["payload"] = data;
   doc["topic"] = topic;
-  serializeJson(doc, Serial);
+  serializeJson(doc, Serial1);
+  Serial.println("mqtt cb");
 }

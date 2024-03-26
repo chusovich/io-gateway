@@ -48,8 +48,6 @@ Line Title(0, 32, 100, "MQTT Module"), WifiStatus(8, 0, 101, "WiFi: disconnected
 Screen HomeScreen(0, &display);
 Menu MainMenu(0);
 
-#define serialLED 9;
-
 // ----------- encoder setup ----------- //
 volatile int clkPin = 2;
 volatile int dtPin = 3;
@@ -65,10 +63,9 @@ void setupEncoderPins();
 
 // ----------- setup ----------- //
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
   delay(2000);
   Serial.begin(115200);
+  Serial1.begin(115200, SERIAL_8N1, D8, D10);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
   }
@@ -96,5 +93,4 @@ void setup() {
 }
 
 void loop() {
-  // code never gets here
 }
