@@ -1,8 +1,7 @@
-#include "EspNowClient.h"
+#include "espNowGateway.h"
 #include "freeRTOS_pp.h"
 
-Task rxTask("Dequeue ESP-NOW", 4096, 1);
-Task txTask("Send ESP-NOW", 4096, 1);
+ Task txTask("Send ESP-NOW", 4096, 1);
 static uint8_t GATEWAY[]{ 0x36, 0x85, 0x18, 0xAB, 0xFA, 0xBC };
 EspNowClient myClient(GATEWAY, "myPeerAlias");
 message_t msg;

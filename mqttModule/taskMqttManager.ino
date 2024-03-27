@@ -13,7 +13,6 @@ void taskMqttManager(void*) {
       if (client.connected()) {
         client.loop();
         vTaskDelay(200 / portTICK_PERIOD_MS);
-        // Serial.println("client loop");
       } else {
         // Serial.println("attempting to connect");
         if (client.connect(clientID, MQTTusername, MQTTpassword)) {

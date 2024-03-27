@@ -6,7 +6,7 @@
 #include <Adafruit_SSD1306.h>
 #define ARDUINOJSON_ENABLE_ARDUINO_STREAM 1
 #include <ArduinoJson.h>
-#include "EspNowGateway.h"
+#include <espNowGateway.h>
 
 // ----------- freeRTOS objects ----------- //
 #define PRO_CORE 0
