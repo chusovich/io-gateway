@@ -8,7 +8,7 @@ void taskSerialReader(void *) {
     jsonError = deserializeJson(doc, Serial1);
     if (!jsonError) {
       doc.shrinkToFit();               // optional
-      serializeJson(doc, msg.string);  // Serial.printf("message_t.string: %s\n", msg.string);
+      serializeJson(doc, msg.string);  Serial.printf("message_t.string: %s\n", msg.string);
       gtw.enqueue(msg, 1000);
     }
   }

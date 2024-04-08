@@ -83,6 +83,4 @@ void setup() {
 }
 
 void loop() {
-  // uxTaskGetStackHighWaterMark(NULL); // return in words so multiply by four
-  // xPortGetFreeHeapSize(); // return bytes
 }

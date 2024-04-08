@@ -2,6 +2,7 @@ void taskDisplay(void *) {
   message_t msg;
   MainMenu.focusLine(-1);
   MainMenu.update();
+
   for (;;) {
     displayQueue.dequeue(&msg);
     // Serial.printf("Display msg: %d, %s\n", msg.id, msg.string);
@@ -21,8 +22,7 @@ void taskDisplay(void *) {
         displayTimeout.reset(100);
         MainMenu.doAction();
         break;
-      case 3:
-        // user timeout
+      case 3:  // user timeout
         MainMenu.focusLine(-1);
         MainMenu.update();
         break;

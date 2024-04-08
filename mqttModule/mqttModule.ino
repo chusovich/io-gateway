@@ -78,14 +78,14 @@ void setup() {
   display.print("Launching...");
   display.display();
   // start up tasks and queues
+  displayQueue.create();
+  mqttQueue.create();
+  displayTimeout.create("timer", 10000, false, 1, timerCallback);
   wifiManager.create(taskWifiManager, PRO_CORE);
   mqttManager.create(taskMqttManager, PRO_CORE);
   mqttMessenger.create(taskMqttMessenger, PRO_CORE);
   serialReader.create(taskSerialReader, APP_CORE);
   displayManager.create(taskDisplay, APP_CORE);
-  mqttQueue.create();
-  displayQueue.create();
-  displayTimeout.create("timer", 10000, false, 1, timerCallback);
   // other setup
   createMenus();
   setupEncoderPins();
